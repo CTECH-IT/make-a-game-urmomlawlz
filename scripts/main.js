@@ -19,14 +19,12 @@ let config = {
 
 let game = new Phaser.Game(config);
 let food;
-let pipes;
+let grass;
+let dog;
 let player;
 let cursors;
 
-let playerGravity = 1000;
-let pipesInterval = 2000;
-let pipesGroup;
-let playerFlapPower = 300;
+let playerGravity = 500;
 
 
 function preload() {
@@ -34,19 +32,27 @@ function preload() {
     this.load.image('food', 'assets/fish.png');
     this.load.image('dog', 'assets/scarydog.png');
     this.load.image('sky', 'assets/sky.jpg');
+    this.load.image('grass', 'assets/grass.png');
+    this.load.image('stick', 'assets/leaf.png');
 }
 
 
 function create() {
     this.add.image(800, 375, 'sky');
+
+
+    grass = this.physics.add.staticGroup();
+
+    grass.create(800, 400, 'grass').setScale(4);
+    grass.create(200, 400, 'stick').setScale(0.2);
+    grass.create(1400, 600, 'stick').setScale(0.2).setAngle(160);
+
+
+    dog = this.physics.add.staticGroup();
+
+    dog.create(800, 600, 'dog').setScale(0.2).refreshBody();
+
     
-   // food = this.physics.add.staticGroup();
-   // food.create(800, 600, 'food').setScale(0.05);
-
-    pipes = this.physics.add.staticGroup();
-
-    pipes.create(800, 300, 'dog').setScale(0.2).refreshBody();
-
     //add kitty
     player = this.physics.add.image(800, 450, 'cat').setScale(0.5);
     //kitty physics
@@ -54,14 +60,8 @@ function create() {
     player.body.setOffset(100, 100);
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
-    player.body.gravity.y = playerGravity;
-    player.body.velocity.y = -playerFlapPower;
 
-    game.time.events.loop(pipesInterval, addPipes); 
-			addPipes();
-
-    this.physics.add.collider(player, pipes);
-    // this.physics.add.collider(player, food);
+    this.physics.add.collider(player, grass);
 
     cursors = this.input.keyboard.createCursorKeys();
    
@@ -70,8 +70,9 @@ function create() {
 
 
 function update() {
-
+    
     if (cursors.up.isDown) {
-        player.setVelocityY(-350);
+        player.body.velocity.y = -2000;
     }
+
 }
