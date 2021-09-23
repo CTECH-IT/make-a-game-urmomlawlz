@@ -20,9 +20,11 @@ let config = {
 let game = new Phaser.Game(config);
 let food;
 let grass;
-let dog;
+let dogs;
 let player;
 let cursors;
+let score = 0;
+let scoreText = '';
 
 let playerGravity = 500;
 
@@ -38,9 +40,10 @@ function preload() {
 
 
 function create() {
+    //add background
     this.add.image(800, 375, 'sky');
 
-
+    //add grass and sticks
     grass = this.physics.add.staticGroup();
 
     grass.create(800, 400, 'grass').setScale(4);
@@ -48,11 +51,6 @@ function create() {
     grass.create(1400, 600, 'stick').setScale(0.2).setAngle(160);
 
 
-    dog = this.physics.add.staticGroup();
-
-    dog.create(800, 600, 'dog').setScale(0.2).refreshBody();
-
-    
     //add kitty
     player = this.physics.add.image(800, 450, 'cat').setScale(0.5);
     //kitty physics
@@ -61,18 +59,63 @@ function create() {
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
-    this.physics.add.collider(player, grass);
+    //add doggies
+    dogs = this.physics.add.group();
+    this.physics.add.collider(player, dogs, hitDogs, null, this);
 
+    //add controls
     cursors = this.input.keyboard.createCursorKeys();
    
+    //add fishies 
+    food = this.physics.add.group({
+        key: 'food',
+        repeat: 0,
+        setXY: { x: 800, y: 0, stepX: 70 }
+    });
+    food.children.iterate(function (child) {
+        child.setScale(0.05);
+    });
+    //make fishies disapear when kitty eats them
+    this.physics.add.overlap(player, food, collectFood, null, this)
+
+    //shows score
+    scoreText = this.add.text(16, 16, "score: 0", { fontSize: '32px', fill: '#000'});
 }
 
 
+function collectFood (player, food) {
+
+    food.disableBody(true, true);
+
+    //score math
+    score += 1;
+    scoreText.setText("score: " + score);
+
+}
 
 function update() {
-    
-    if (cursors.up.isDown) {
-        player.body.velocity.y = -2000;
+
+    //controlls for the kitty
+    if (cursors.left.isDown) {
+        player.setVelocityX(-450);
     }
+    else if (cursors.right.isDown) {
+        player.setVelocityX(450);
+    }
+    else {
+        player.setVelocityX(0);
+    }
+    //jump
+    if(cursors.up.isDown) {
+        player.setVelocityY(-250);
+    }
+
+}
+
+//ends game
+function hitDogs() {
+
+    this.physics.pause();
+    gameOver = true;
 
 }
