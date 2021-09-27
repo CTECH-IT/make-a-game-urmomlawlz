@@ -32,7 +32,7 @@ let playerGravity = 500;
 function preload() {
     this.load.image('cat', 'assets/kitty.png');
     this.load.image('food', 'assets/fish.png');
-    this.load.image('dog', 'assets/scarydog.png');
+    this.load.image('dogs', 'assets/scarydog.png');
     this.load.image('sky', 'assets/sky.jpg');
     this.load.image('grass', 'assets/grass.png');
     this.load.image('stick', 'assets/leaf.png');
@@ -60,8 +60,25 @@ function create() {
     player.setCollideWorldBounds(true);
 
     //add doggies
-    dogs = this.physics.add.group();
+    //dogs = this.physics.add.group();
+    var dogs = this.physics.add.image(100, 500, 'dogs').setScale(0.2)
+     .setImmovable(true)
+     .setVelocity(100, -100);
+
+    dogs.body.setAllowGravity(false);
+
+    this.tweens.timeline({
+     targets: dogs.body.velocity,
+     loop: -1,
+     tweens: [
+       { x:    0, y:    0, duration: 1000, ease: 'stepped' },
+       { x:    0, y:    0, duration:    0, ease: 'stepped' },
+       { x:  800, y:    0, duration:  500, ease: 'stepped' }
+     ]
+    });
+
     this.physics.add.collider(player, dogs, hitDogs, null, this);
+
 
     //add controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -92,6 +109,8 @@ function collectFood (player, food) {
     scoreText.setText("score: " + score);
 
 }
+
+
 
 function update() {
 
