@@ -25,6 +25,8 @@ let player;
 let cursors;
 let score = 0;
 let scoreText = '';
+let endText;
+let winText;
 
 let playerGravity = 500;
 
@@ -84,19 +86,32 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
    
     //add fishies 
-    food = this.physics.add.group({
-        key: 'food',
-        repeat: 0,
-        setXY: { x: 800, y: 0, stepX: 70 }
-    });
-    food.children.iterate(function (child) {
-        child.setScale(0.05);
+    var food = this.physics.add.image(100, 500, 'food').setScale(0.05)
+     .setImmovable(true)
+     .setVelocity(100, -100);
+
+    food.body.setAllowGravity(false);
+
+    this.tweens.timeline({
+     targets: food.body.velocity,
+     loop: -1,
+     tweens: [
+       { x:    0, y:    0, duration: 1000, ease: 'linear' },
+       { x:    0, y:    0, duration:    0, ease: 'linear' },
+       { x:  800, y:    0, duration:  500, ease: 'linear' }
+     ]
     });
     //make fishies disapear when kitty eats them
     this.physics.add.overlap(player, food, collectFood, null, this)
 
+
     //shows score
     scoreText = this.add.text(16, 16, "score: 0", { fontSize: '32px', fill: '#000'});
+    endText = this.add.text(500, 300, "game over lol ", { fontSize: '100px', fill: '#000'});
+    endText.alpha = 0;
+    winText = this.add.text(250, 200, "yayyyyyyyyyyyyyyyyyyy you win ", { fontSize: '70px', fill: '#000'});
+    winText.alpha = 0;
+
 }
 
 
@@ -107,7 +122,13 @@ function collectFood (player, food) {
     //score math
     score += 1;
     scoreText.setText("score: " + score);
+    if (score = 1) {
 
+        this.physics.pause()
+        gameOver = true;
+        winText.alpha = 1;
+
+    }
 }
 
 
@@ -135,6 +156,7 @@ function update() {
 function hitDogs() {
 
     this.physics.pause();
+    endText.setText("game over lol");
     gameOver = true;
-
+    endText.alpha = 1;
 }
